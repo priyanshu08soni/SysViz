@@ -110,6 +110,7 @@ const DashboardPage: React.FC = () => {
                 { code: joinCode },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
             setJoinCode('');
             setShowJoinTeamModal(false);
             fetchTeams();
