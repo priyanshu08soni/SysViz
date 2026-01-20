@@ -5,7 +5,6 @@ import {
     Layout,
     Plus,
     Users,
-    Settings,
     LogOut,
     Search,
     Grid,
@@ -26,7 +25,7 @@ const DashboardPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
-    const [activeTab, setActiveTab] = useState<'main' | 'activity' | 'teams' | 'settings'>('main');
+    const [activeTab, setActiveTab] = useState<'main' | 'activity' | 'teams'>('main');
     const [teams, setTeams] = useState<any[]>([]);
     const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
     const [showJoinTeamModal, setShowJoinTeamModal] = useState(false);
@@ -228,23 +227,6 @@ const DashboardPage: React.FC = () => {
                         )}
                     </div>
                 );
-            case 'settings':
-                return (
-                    <div className="p-10">
-                        <h3 className="text-xl font-bold mb-6">Account Settings</h3>
-                        <div className="glass-strong p-8 max-w-2xl space-y-6">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-muted">Username</label>
-                                <input type="text" value={user?.username} disabled className="bg-secondary border border-gray-600 rounded-lg px-4 py-2 text-gray-400" />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-muted">Email</label>
-                                <input type="text" value={user?.email} disabled className="bg-secondary border border-gray-600 rounded-lg px-4 py-2 text-gray-400" />
-                            </div>
-                            <button className="btn-primary w-full">Save Changes</button>
-                        </div>
-                    </div>
-                );
             default:
                 return (
                     <main className="flex-1 overflow-y-auto p-8 scrollbar-thin">
@@ -416,14 +398,6 @@ const DashboardPage: React.FC = () => {
                         >
                             <Users size={16} />
                             <span>Teams</span>
-                        </button>
-
-                        <button
-                            onClick={() => setActiveTab('settings')}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-all ${activeTab === 'settings' ? 'bg-primary/10 text-primary' : 'text-muted hover:text-white hover:bg-white/5'}`}
-                        >
-                            <Settings size={16} />
-                            <span>Settings</span>
                         </button>
                     </div>
                 </div>
