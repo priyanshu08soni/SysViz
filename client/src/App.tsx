@@ -7,12 +7,14 @@ import DashboardPage from './pages/DashboardPage';
 import TemplatesGallery from './pages/TemplatesGallery';
 import ViewerPage from './pages/ViewerPage';
 import { useAuthStore } from './store/useAuthStore';
+import MobileRestriction from './components/MobileRestriction';
 
 function App() {
   const { isAuthenticated } = useAuthStore();
 
   return (
     <Router>
+      <MobileRestriction />
       <main className="min-h-screen bg-background">
         <Routes>
           <Route path="/" element={<LandingPage />} />
