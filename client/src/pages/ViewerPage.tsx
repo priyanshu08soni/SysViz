@@ -43,7 +43,7 @@ const Viewer: React.FC = () => {
     useEffect(() => {
         const fetchPublicDesign = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/designs/public/${publicId}`);
+                const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/designs/public/${publicId}`);
                 setDesign(res.data);
             } catch (err: any) {
                 console.error('Failed to fetch public design', err);

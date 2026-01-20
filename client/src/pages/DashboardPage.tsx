@@ -51,8 +51,8 @@ const DashboardPage: React.FC = () => {
         setLoading(true);
         try {
             const url = teamId
-                ? `http://localhost:5000/api/designs/team/${teamId}`
-                : 'http://localhost:5000/api/designs/mine';
+                ? `${import.meta.env.VITE_SERVER_URL}/api/designs/team/${teamId}`
+                : `${import.meta.env.VITE_SERVER_URL}/api/designs/mine`;
 
             const res = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -68,7 +68,7 @@ const DashboardPage: React.FC = () => {
     const fetchTeams = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:5000/api/collaboration/teams', {
+            const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/collaboration/teams`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTeams(res.data);
@@ -85,7 +85,7 @@ const DashboardPage: React.FC = () => {
 
         setTeamActionLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/collaboration/teams',
+            await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/collaboration/teams`,
                 { name: newTeamName },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -106,7 +106,7 @@ const DashboardPage: React.FC = () => {
 
         setTeamActionLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/collaboration/teams/join',
+            await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/collaboration/teams/join`,
                 { code: joinCode },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

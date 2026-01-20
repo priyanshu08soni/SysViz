@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/auth/login`, { email, password });
             setAuth(response.data.user, response.data.token);
             navigate('/dashboard');
         } catch (err: any) {

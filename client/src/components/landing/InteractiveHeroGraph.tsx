@@ -68,8 +68,9 @@ const InteractiveHeroGraph: React.FC = () => {
     );
 
     return (
-        <div className="w-full h-[500px] md:h-[600px] rounded-3xl overflow-hidden glass-strong border-white/10 shadow-2xl relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+    return (
+        <div className="absolute inset-0 w-full h-full">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505] pointer-events-none z-10" />
 
             <ReactFlow
                 nodes={nodes}
@@ -79,20 +80,16 @@ const InteractiveHeroGraph: React.FC = () => {
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 fitView
-                className="bg-[#0a0a0a]"
+                className="bg-[#050505]"
                 minZoom={0.5}
                 maxZoom={1.5}
+                proOptions={{ hideAttribution: true }}
             >
-                <Background color="#222" gap={20} />
-                <Controls className="!bg-[#202124] !border-[#3c4043] [&>button]:!text-gray-400" />
+                <Background color="#1a1a1a" gap={24} size={1} />
+                <Controls className="!bg-[#202124] !border-[#3c4043] [&>button]:!text-gray-400 m-4" />
             </ReactFlow>
-
-            {/* Overlay Badge */}
-            <div className="absolute bottom-6 left-6 px-4 py-2 glass rounded-full border-white/10 flex items-center gap-2 pointer-events-none">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Interactive Demo</span>
-            </div>
         </div>
+    );
     );
 };
 

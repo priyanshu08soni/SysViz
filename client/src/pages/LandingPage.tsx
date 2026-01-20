@@ -177,23 +177,26 @@ const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, description:
 
     return (
         <motion.div
+            drag
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            dragElastic={0.2}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay }}
             whileHover={{
-                y: -10,
-                rotateX: 5,
-                rotateY: -5,
-                transition: { type: "spring", stiffness: 400, damping: 10 }
+                y: -5,
+                boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)"
             }}
-            className="p-10 rounded-[2.5rem] glass border-white/5 hover:border-white/20 transition-all group perspective-1000"
+            className="p-8 rounded-[2rem] bg-[#0f0f0f] border border-white/5 hover:border-white/10 transition-all group cursor-grab active:cursor-grabbing relative overflow-hidden"
         >
-            <div className={`w-16 h-16 ${colors[color]} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
-                {React.cloneElement(icon as any, { size: 32 })}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none" />
+
+            <div className={`w-14 h-14 ${colors[color]} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                {React.cloneElement(icon as any, { size: 28 })}
             </div>
-            <h3 className="text-2xl font-bold mb-4 tracking-tight group-hover:text-primary transition-colors">{title}</h3>
-            <p className="text-muted leading-relaxed font-medium">{description}</p>
+            <h3 className="text-xl font-bold mb-3 tracking-tight text-gray-100">{title}</h3>
+            <p className="text-muted/80 leading-relaxed text-sm font-medium">{description}</p>
         </motion.div>
     );
 };
