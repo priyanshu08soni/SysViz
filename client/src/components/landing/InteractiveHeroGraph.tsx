@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
     ReactFlow,
     Background,
-    Controls,
     useNodesState,
     useEdgesState,
     addEdge,
@@ -21,31 +20,31 @@ const initialNodes: Node[] = [
     {
         id: '1',
         type: 'custom',
-        position: { x: 250, y: 50 },
+        position: { x: 1050, y: 150 },
         data: { type: 'client', label: 'Users', latency: 20, throughput: 100 }
     },
     {
         id: '2',
         type: 'custom',
-        position: { x: 250, y: 200 },
+        position: { x: 1050, y: 300 },
         data: { type: 'loadBalancer', label: 'Load Balancer', latency: 5, throughput: 95 }
     },
     {
         id: '3',
         type: 'custom',
-        position: { x: 100, y: 350 },
+        position: { x: 900, y: 450 },
         data: { type: 'webServer', label: 'Server A', latency: 45, throughput: 40 }
     },
     {
         id: '4',
         type: 'custom',
-        position: { x: 400, y: 350 },
+        position: { x: 1200, y: 450 },
         data: { type: 'webServer', label: 'Server B', latency: 42, throughput: 55 }
     },
     {
         id: '5',
         type: 'custom',
-        position: { x: 250, y: 500 },
+        position: { x: 1050, y: 600 },
         data: { type: 'database', label: 'Primary DB', latency: 15, throughput: 80 }
     }
 ];
@@ -68,9 +67,8 @@ const InteractiveHeroGraph: React.FC = () => {
     );
 
     return (
-    return (
         <div className="absolute inset-0 w-full h-full">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/50 to-[#050505] pointer-events-none z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b pointer-events-none z-10" />
 
             <ReactFlow
                 nodes={nodes}
@@ -79,17 +77,19 @@ const InteractiveHeroGraph: React.FC = () => {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
-                fitView
+                fitView={false}
+                panOnScroll={false}
+                zoomOnScroll={false}
+                zoomOnDoubleClick={false}
+                preventScrolling={false}
                 className="bg-[#050505]"
                 minZoom={0.5}
                 maxZoom={1.5}
                 proOptions={{ hideAttribution: true }}
             >
                 <Background color="#1a1a1a" gap={24} size={1} />
-                <Controls className="!bg-[#202124] !border-[#3c4043] [&>button]:!text-gray-400 m-4" />
             </ReactFlow>
         </div>
-    );
     );
 };
 
