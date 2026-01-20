@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const designController_1 = require("../controllers/designController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.use(auth_1.authenticateToken);
+router.post('/', designController_1.createDesign);
+router.get('/workspace/:workspaceId', designController_1.getDesignsByWorkspace);
+router.get('/:id', designController_1.getDesignById);
+router.put('/:id', designController_1.updateDesign);
+exports.default = router;

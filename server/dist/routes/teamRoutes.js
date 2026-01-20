@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const teamController_1 = require("../controllers/teamController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.use(auth_1.authenticateToken);
+router.post('/teams', teamController_1.createTeam);
+router.get('/teams', teamController_1.getMyTeams);
+router.post('/workspaces', teamController_1.createWorkspace);
+router.get('/teams/:teamId/workspaces', teamController_1.getWorkspacesByTeam);
+exports.default = router;
