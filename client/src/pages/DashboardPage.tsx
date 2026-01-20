@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import ProfileTab from '../components/ProfileTab';
 
 const DashboardPage: React.FC = () => {
     const { user, logout, token } = useAuthStore();
@@ -25,13 +26,17 @@ const DashboardPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
-    const [activeTab, setActiveTab] = useState<'main' | 'activity' | 'teams'>('main');
+    const [activeTab, setActiveTab] = useState<'main' | 'activity' | 'teams' | 'profile'>('main');
     const [teams, setTeams] = useState<any[]>([]);
     const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
     const [showJoinTeamModal, setShowJoinTeamModal] = useState(false);
     const [newTeamName, setNewTeamName] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [teamActionLoading, setTeamActionLoading] = useState(false);
+
+    const [selectedDesignFilter, setSelectedDesignFilter] = useState<string>('');
+    const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+    const [activities, setActivities] = useState<any[]>([]);
 
     useEffect(() => {
         if (!user) {
@@ -43,8 +48,29 @@ const DashboardPage: React.FC = () => {
             fetchDesigns(selectedTeam?._id);
         } else if (activeTab === 'teams') {
             fetchTeams();
+        } else if (activeTab === 'activity') {
+            fetchActivities();
+            if (designs.length === 0) fetchDesigns();
         }
-    }, [user, navigate, activeTab, selectedTeam]);
+    }, [user, navigate, activeTab, selectedTeam, selectedDesignFilter]);
+
+    const fetchActivities = async () => {
+        setLoading(true);
+        try {
+            const url = selectedDesignFilter
+                ? `${import.meta.env.VITE_SERVER_URL}/api/activity?designId=${selectedDesignFilter}`
+                : `${import.meta.env.VITE_SERVER_URL}/api/activity`;
+
+            const res = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setActivities(res.data);
+        } catch (err) {
+            console.error('Failed to fetch activity', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchDesigns = async (teamId?: string) => {
         setLoading(true);
@@ -142,9 +168,122 @@ const DashboardPage: React.FC = () => {
         switch (activeTab) {
             case 'activity':
                 return (
-                    <div className="p-10">
-                        <h3 className="text-xl font-bold mb-6">Activity Feed</h3>
-                        <div className="glass-strong p-6 text-muted">Thinking about adding an activity feed? Start creating designs first!</div>
+                    <div className="p-10 flex flex-col h-full overflow-y-auto scrollbar-thin">
+                        <div className="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 className="text-2xl font-bold mb-2">Activity Feed</h3>
+                                <p className="text-muted text-sm">Track recent changes and updates in your workspace.</p>
+                            </div>
+
+                            {/* Filter Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                                    className="flex items-center gap-3 px-4 py-2 bg-secondary border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-all outline-none"
+                                >
+                                    <div className="w-5 h-5 bg-primary/10 rounded flex items-center justify-center text-primary">
+                                        <Grid size={12} />
+                                    </div>
+                                    <span>{selectedDesignFilter ? designs.find(d => d._id === selectedDesignFilter)?.name || 'Project' : 'All Projects'}</span>
+                                    <ChevronRight className={`text-muted transition-transform duration-300 ${isFilterDropdownOpen ? 'rotate-90' : 'rotate-0'}`} size={14} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {isFilterDropdownOpen && (
+                                        <>
+                                            <div
+                                                className="fixed inset-0 z-[60]"
+                                                onClick={() => setIsFilterDropdownOpen(false)}
+                                            />
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="absolute right-0 mt-2 w-64 glass-strong border border-white/10 rounded-2xl shadow-2xl z-[70] overflow-hidden"
+                                            >
+                                                <div className="p-2 max-h-[300px] overflow-y-auto scrollbar-thin">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedDesignFilter('');
+                                                            setIsFilterDropdownOpen(false);
+                                                        }}
+                                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 ${!selectedDesignFilter ? 'bg-primary/10 text-primary' : 'text-muted'}`}
+                                                    >
+                                                        <div className={`w-6 h-6 rounded flex items-center justify-center ${!selectedDesignFilter ? 'bg-primary/20' : 'bg-white/5'}`}>
+                                                            <Activity size={12} />
+                                                        </div>
+                                                        <span className="font-medium">All Projects</span>
+                                                    </button>
+
+                                                    <div className="my-2 border-t border-white/5" />
+
+                                                    {designs.map(design => (
+                                                        <button
+                                                            key={design._id}
+                                                            onClick={() => {
+                                                                setSelectedDesignFilter(design._id);
+                                                                setIsFilterDropdownOpen(false);
+                                                            }}
+                                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all hover:bg-white/5 ${selectedDesignFilter === design._id ? 'bg-primary/10 text-primary' : 'text-muted'}`}
+                                                        >
+                                                            <div className={`w-6 h-6 rounded flex items-center justify-center ${selectedDesignFilter === design._id ? 'bg-primary/20' : 'bg-white/5'}`}>
+                                                                <Layout size={12} />
+                                                            </div>
+                                                            <span className="font-medium truncate">{design.name}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        </>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+
+                        {loading ? (
+                            <div className="h-64 flex items-center justify-center text-muted">Loading activity...</div>
+                        ) : activities.length === 0 ? (
+                            <div className="h-64 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center text-center p-10">
+                                <Activity className="text-muted w-12 h-12 mb-4 opacity-20" />
+                                <h4 className="text-lg font-bold mb-2">No activity found</h4>
+                                <p className="text-muted text-sm max-w-sm">
+                                    {selectedDesignFilter ? 'No recent activity for this project.' : 'Actions you take, like creating or updating designs, will appear here.'}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 max-w-3xl">
+                                {activities.map((activity: any) => (
+                                    <div key={activity._id} className="glass-strong p-4 rounded-xl border-white/5 flex gap-4 items-start">
+                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0 border border-white/5">
+                                            {activity.action === 'created_design' && <Plus size={18} className="text-emerald-500" />}
+                                            {activity.action === 'updated_design' && <Layout size={18} className="text-blue-500" />}
+                                            {activity.action === 'published_design' && <Users size={18} className="text-purple-500" />}
+                                            {!['created_design', 'updated_design', 'published_design'].includes(activity.action) && <Activity size={18} className="text-muted" />}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-sm font-bold">
+                                                    {activity.action === 'created_design' && 'Created a new design'}
+                                                    {activity.action === 'updated_design' && 'Updated design'}
+                                                    {activity.action === 'published_design' && 'Published design'}
+                                                    {activity.action === 'unpublished_design' && 'Unpublished design'}
+                                                    {!['created_design', 'updated_design', 'published_design', 'unpublished_design'].includes(activity.action) && activity.action}
+                                                </h4>
+                                                <span className="text-[10px] text-muted font-mono">
+                                                    {new Date(activity.created_at).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {activity.details && (
+                                                <p className="text-xs text-muted mt-1">
+                                                    {activity.details.name && <span className="text-foreground font-medium">{activity.details.name}</span>}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 );
             case 'teams':
@@ -227,6 +366,8 @@ const DashboardPage: React.FC = () => {
                         )}
                     </div>
                 );
+            case 'profile':
+                return <ProfileTab designsCount={designs.length} teamsCount={teams.length} />;
             default:
                 return (
                     <main className="flex-1 overflow-y-auto p-8 scrollbar-thin">
@@ -403,8 +544,11 @@ const DashboardPage: React.FC = () => {
                 </div>
 
                 <div className="mt-auto p-4 border-t border-white/5">
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer group">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold border border-white/5">
+                    <div
+                        onClick={() => setActiveTab('profile')}
+                        className={`flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer group ${activeTab === 'profile' ? 'bg-primary/10' : ''}`}
+                    >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold border border-white/5 transition-all ${activeTab === 'profile' ? 'bg-primary text-white' : 'bg-primary/20 text-primary'}`}>
                             {user?.username?.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 overflow-hidden">
@@ -422,10 +566,67 @@ const DashboardPage: React.FC = () => {
             <div className="flex-1 flex flex-col overflow-hidden bg-background">
                 {/* Top Header */}
                 <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 glass-light bg-background/50 backdrop-blur-sm">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-base font-bold text-foreground">My Designs</h2>
-                        <ChevronRight className="text-muted" size={14} />
-                        <span className="text-muted text-xs font-medium">{designs.length} Projects</span>
+                    <div className="flex items-center gap-2">
+                        {/* Breadcrumbs */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => {
+                                    setActiveTab('main');
+                                    setSelectedTeam(null);
+                                }}
+                                className="text-sm font-medium text-muted hover:text-foreground transition-colors"
+                            >
+                                Dashboard
+                            </button>
+
+                            {activeTab === 'teams' && (
+                                <>
+                                    <ChevronRight className="text-muted/50" size={14} />
+                                    <span className="text-sm font-bold text-foreground">Teams</span>
+                                </>
+                            )}
+
+                            {activeTab === 'activity' && (
+                                <>
+                                    <ChevronRight className="text-muted/50" size={14} />
+                                    <span className="text-sm font-bold text-foreground">Activity Feed</span>
+                                </>
+                            )}
+
+                            {activeTab === 'profile' && (
+                                <>
+                                    <ChevronRight className="text-muted/50" size={14} />
+                                    <span className="text-sm font-bold text-foreground">My Profile</span>
+                                </>
+                            )}
+
+                            {activeTab === 'main' && (
+                                <>
+                                    {selectedTeam ? (
+                                        <>
+                                            <ChevronRight className="text-muted/50" size={14} />
+                                            <button
+                                                onClick={() => setActiveTab('teams')}
+                                                className="text-sm font-medium text-muted hover:text-foreground transition-colors"
+                                            >
+                                                Teams
+                                            </button>
+                                            <ChevronRight className="text-muted/50" size={14} />
+                                            <span className="text-sm font-bold text-foreground">{selectedTeam.name}</span>
+                                            <ChevronRight className="text-muted/50" size={14} />
+                                            <span className="text-xs font-medium text-muted">{designs.length} Projects</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ChevronRight className="text-muted/50" size={14} />
+                                            <span className="text-sm font-bold text-foreground">My Designs</span>
+                                            <ChevronRight className="text-muted/50" size={14} />
+                                            <span className="text-xs font-medium text-muted">{designs.length} Projects</span>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">

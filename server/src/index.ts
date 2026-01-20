@@ -8,6 +8,7 @@ import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import designRoutes from './routes/designRoutes';
 import teamRoutes from './routes/teamRoutes';
+import activityRoutes from './routes/activityRoutes';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/collaboration', teamRoutes);
+app.use('/api/activity', activityRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

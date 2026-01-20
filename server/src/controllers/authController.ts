@@ -97,7 +97,8 @@ export const getMe = async (req: any, res: Response) => {
             id: user._id,
             username: user.username,
             email: user.email,
-            avatar_url: user.avatar_url
+            avatar_url: user.avatar_url,
+            created_at: user.created_at
         });
     } catch (error: any) {
         console.error('GetMe error:', error);

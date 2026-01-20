@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { AuthRequest } from '../middleware/auth';
 import Design from '../models/Design';
+import { logActivity } from './activityController';
 
 export const createDesign = async (req: AuthRequest, res: Response) => {
     console.log('Create Design Request Body:', req.body);
@@ -9,11 +10,6 @@ export const createDesign = async (req: AuthRequest, res: Response) => {
 
     const resolvedWorkspaceId = workspaceId || workspace_id;
     const resolvedTeamId = teamId || team_id;
-
-    if (!resolvedWorkspaceId && !resolvedTeamId) {
-        console.error('Neither Workspace ID nor Team ID provided');
-        return res.status(400).json({ message: 'Workspace ID or Team ID is required' });
-    }
 
     if (!req.user || !req.user.userId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -32,6 +28,10 @@ export const createDesign = async (req: AuthRequest, res: Response) => {
         });
 
         await design.save();
+
+        // Log activity
+        await logActivity(userId, 'created_design', { designId: design._id, name: design.name }, resolvedWorkspaceId);
+
         res.status(201).json(design);
     } catch (error: any) {
         console.error('Create design error:', error);
@@ -89,6 +89,10 @@ export const updateDesign = async (req: any, res: Response) => {
         if (!design.public_id) {
             design.public_id = crypto.randomBytes(16).toString('hex');
             await design.save();
+        }
+
+        if (req.user?.userId) {
+            await logActivity(req.user.userId, 'updated_design', { designId: design._id, name: design.name }, design.public_id);
         }
 
         res.json(design);
@@ -157,6 +161,11 @@ export const togglePublic = async (req: AuthRequest, res: Response) => {
 
         design.is_public = isPublic;
         await design.save();
+
+        // Log activity
+        if (req.user?.userId) {
+            await logActivity(req.user.userId, isPublic ? 'published_design' : 'unpublished_design', { designId: design._id, name: design.name });
+        }
 
         res.json(design);
     } catch (error: any) {
