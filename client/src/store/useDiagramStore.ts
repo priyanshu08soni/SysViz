@@ -157,7 +157,7 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
             // Check if we need to create a NEW design or UPDATE existing
             if (workspaceId === 'default' || workspaceId === 'new') {
                 // CREATE (POST)
-                const res = await axios.post('http://localhost:5000/api/designs',
+                const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/designs`,
                     {
                         name: designName || 'Untitled System',
                         teamId: teamId, // Include teamId if present
@@ -176,7 +176,7 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
                 get().addActivity(`Design created: ${designName}`);
             } else {
                 // UPDATE (PUT)
-                const res = await axios.put(`http://localhost:5000/api/designs/${workspaceId}`,
+                const res = await axios.put(`${import.meta.env.VITE_SERVER_URL}/api/designs/${workspaceId}`,
                     {
                         name: designName || 'Untitled System',
                         data: { nodes, edges }
@@ -202,7 +202,7 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
         if (workspaceId === 'default' || workspaceId === 'new') return;
 
         try {
-            const res = await axios.post(`http://localhost:5000/api/designs/${workspaceId}/share`,
+            const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/designs/${workspaceId}/share`,
                 { isPublic },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -219,7 +219,7 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
 
     loadDesign: async (designId, token) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/designs/${designId}`, {
+            const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/designs/${designId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const { nodes, edges } = res.data.data;
@@ -253,7 +253,7 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
             existingSocket.disconnect();
         }
 
-        const socket = io('http://localhost:5000'); // Use env for production
+        const socket = io(import.meta.env.VITE_SERVER_URL);
 
         socket.on('connect', () => {
             socket.emit('join-workspace', workspaceId);
