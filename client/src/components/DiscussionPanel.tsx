@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { Send, MessageSquare, Activity } from 'lucide-react';
 import { useDiagramStore } from '../store/useDiagramStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 const DiscussionPanel: React.FC = () => {
     const [input, setInput] = useState('');
     const [activeTab, setActiveTab] = useState<'chat' | 'activity'>('chat');
     const { messages, sendMessage, remoteUsers, activityLog } = useDiagramStore();
+    const { user } = useAuthStore();
 
     const handleSend = () => {
         if (input.trim()) {
-            sendMessage(input);
+            // Fallback for anonymous users or missing ID
+            const userId = user?.id ? user.id.toString() : `anon-${Date.now()}`;
+            const username = user?.username || 'Guest';
+            sendMessage(input, userId, username);
             setInput('');
         }
     };
@@ -65,18 +70,21 @@ const DiscussionPanel: React.FC = () => {
                             <p className="text-xs font-medium text-muted">No discussions yet.<br />Start the conversation!</p>
                         </div>
                     ) : (
-                        messages.map((msg) => (
-                            <div key={msg.id} className={`flex flex-col ${msg.user === 'Me' ? 'items-end' : 'items-start'}`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[10px] font-bold text-muted uppercase">{msg.user}</span>
-                                    <span className="text-[10px] text-muted/50">{msg.timestamp}</span>
+                        messages.map((msg) => {
+                            const isMe = msg.userId === (user?.id ? user.id.toString() : '');
+                            return (
+                                <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[10px] font-bold text-muted uppercase">{isMe ? 'Me' : msg.username}</span>
+                                        <span className="text-[10px] text-muted/50">{msg.timestamp}</span>
+                                    </div>
+                                    <div className={`px-3 py-2 rounded-xl text-xs max-w-[85%] leading-relaxed ${isMe ? 'bg-primary text-white rounded-tr-none shadow-sm' : 'bg-secondary text-gray-300 rounded-tl-none border border-white/5'
+                                        }`}>
+                                        {msg.text}
+                                    </div>
                                 </div>
-                                <div className={`px-3 py-2 rounded-xl text-xs max-w-[85%] leading-relaxed ${msg.user === 'Me' ? 'bg-primary text-white rounded-tr-none shadow-sm' : 'bg-secondary text-gray-300 rounded-tl-none border border-white/5'
-                                    }`}>
-                                    {msg.text}
-                                </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )
                 ) : (
                     /* ACTIVITY VIEW */

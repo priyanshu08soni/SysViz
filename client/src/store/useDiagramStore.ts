@@ -34,7 +34,8 @@ interface RemoteUser {
 
 interface Message {
     id: string;
-    user: string;
+    userId: string;
+    username: string;
     text: string;
     timestamp: string;
 }
@@ -74,7 +75,7 @@ interface DiagramState {
     initSocket: (workspaceId: string) => void;
     disconnectSocket: () => void;
     updateCursor: (position: { x: number; y: number }, userName: string) => void;
-    sendMessage: (text: string) => void;
+    sendMessage: (text: string, userId: string, username: string) => void;
     addFakeUser: (user: RemoteUser) => void;
 
     // Activity LOG
@@ -365,14 +366,15 @@ export const useDiagramStore = create<DiagramState>((set, get) => ({
         }
     },
 
-    sendMessage: (text) => {
+    sendMessage: (text, userId, username) => {
         const { socket, workspaceId } = get();
         if (socket) {
-            const msg = {
+            const msg: Message = {
                 id: Date.now().toString(),
-                user: 'Me',
+                userId: userId,
+                username: username || 'Anonymous',
                 text,
-                timestamp: new Date().toLocaleTimeString()
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
             socket.emit('send-message', { workspaceId, message: msg });
         }
